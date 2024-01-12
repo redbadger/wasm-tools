@@ -124,12 +124,10 @@ impl ServerApp {
         let mut store = Store::new(&state.engine, wasi_view);
         let (service, _) =
             ServiceForHost::instantiate_async(&mut store, &state.component, &linker).await?;
-        let request = Resource::<types::Request>::new_own(
-            store
-                .data_mut()
-                .table_mut()
-                .push(Box::new(MyRequest { headers, body }))?,
-        );
+        let request = store
+            .data_mut()
+            .table_mut()
+            .push::<types::Request>(Box::new(MyRequest { headers, body }))?;
         let response = service
             .example_service_handler()
             .call_execute(&mut store, request)
@@ -207,7 +205,7 @@ impl HostRequest for ServerWasiView {
         &mut self,
         this: Resource<types::Request>,
     ) -> anyhow::Result<Vec<(Vec<u8>, Vec<u8>)>> {
-        Ok(self.table().get::<MyRequest>(this.rep())?.headers.clone())
+        Ok(self.table().get::<Request>(this)?.headers.clone())
     }
 
     async fn body(&mut self, this: Resource<types::Request>) -> anyhow::Result<Vec<u8>> {
