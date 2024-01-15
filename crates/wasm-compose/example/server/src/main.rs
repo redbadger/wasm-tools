@@ -289,10 +289,8 @@ impl HostLogger for ServerWasiView {
         Ok(())
     }
 
-    fn drop(&mut self, this: Resource<logging::Logger>) -> anyhow::Result<()> {
-        let host_handle: Resource<MyLogger> = Resource::new_own(this.rep());
-
-        Ok(self.table_mut().delete(host_handle).map(|_| ())?)
+    fn drop(&mut self, _this: Resource<logging::Logger>) -> anyhow::Result<()> {
+        Ok(())
     }
 }
 
