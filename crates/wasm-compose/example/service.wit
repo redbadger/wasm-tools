@@ -32,14 +32,8 @@ interface logging {
     get-logger: func() -> logger;
 }
 
-world service-for-host {
-    import logging;
-    export handler;
-}
-
 world service {
     import logging;
-    export logging;
     export handler;
 }
 

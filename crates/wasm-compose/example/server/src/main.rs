@@ -21,7 +21,7 @@ use exports::example::service::handler;
 
 wasmtime::component::bindgen!({
     path: "../service.wit",
-    world: "service-for-host",
+    world: "service",
     async: true
 });
 
@@ -118,12 +118,12 @@ impl ServerApp {
         let state = req.state();
         let mut linker = Linker::new(&state.engine);
         command::add_to_linker(&mut linker)?;
-        ServiceForHost::add_to_linker(&mut linker, |view| view)?;
+        Service::add_to_linker(&mut linker, |view| view)?;
 
         let wasi_view = ServerWasiView::new()?;
         let mut store = Store::new(&state.engine, wasi_view);
         let (service, _) =
-            ServiceForHost::instantiate_async(&mut store, &state.component, &linker).await?;
+            Service::instantiate_async(&mut store, &state.component, &linker).await?;
 
         let host_request = store
             .data_mut()
@@ -299,7 +299,7 @@ impl HostLogger for ServerWasiView {
 #[async_trait]
 impl logging::Host for ServerWasiView {
     async fn get_logger(&mut self) -> anyhow::Result<Resource<logging::Logger>> {
-        Ok(Resource::new_borrow(self.logger_handle.rep()))
+        Ok(Resource::new_own(self.logger_handle.rep()))
     }
 }
 
